@@ -3,7 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { ChevronRight, Sparkles, ShieldCheck, Users } from 'lucide-react';
 
-export const SplashOnboarding = ({ onFinish }) => {
+interface SplashOnboardingProps {
+  onFinish: () => void;
+}
+
+export const SplashOnboarding: React.FC<SplashOnboardingProps> = ({ onFinish }) => {
   const [step, setStep] = useState('splash');
   const [onboardingIndex, setOnboardingIndex] = useState(0);
 
