@@ -897,6 +897,21 @@ export default function FeshineApp() {
                       </div>
                    </div>
 
+                   <div className="p-4 bg-[#F5F7FA] rounded-2xl flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <ImageIcon size={20} className="text-[#0F203F]" />
+                         </div>
+                         <div>
+                            <div className="text-sm font-bold">Arka Planı Gizle</div>
+                            <div className="text-[10px] text-gray-400">AI ile arka plan bulanıklaştırma</div>
+                         </div>
+                      </div>
+                      <div className="w-12 h-6 bg-gray-200 rounded-full relative cursor-pointer">
+                         <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all" />
+                      </div>
+                   </div>
+
                    <div className="space-y-2">
                       <div className="text-xs font-bold text-gray-400 uppercase">Açıklama</div>
                       <textarea 
