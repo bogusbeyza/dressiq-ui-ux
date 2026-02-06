@@ -41,7 +41,7 @@ import { ImageWithFallback } from "./components/figma/ImageWithFallback";
 // --- Types & Constants ---
 
 type AppState = "splash" | "onboarding" | "main";
-type Tab = "home" | "explore" | "stylebot" | "community" | "profile" | "notifications";
+type Tab = "home" | "explore" | "stylebot" | "community" | "profile" | "notifications" | "messages";
 
 const COLORS = {
   primaryNavy: "#0F203F",
@@ -212,7 +212,7 @@ const Onboarding = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
-const Header = ({ title, showSearch = true, onNotifClick }: { title: string | React.ReactNode, showSearch?: boolean, onNotifClick?: () => void }) => (
+const Header = ({ title, showSearch = true, onNotifClick, onSearchClick, onMessageClick }: { title: string | React.ReactNode, showSearch?: boolean, onNotifClick?: () => void, onSearchClick?: () => void, onMessageClick?: () => void }) => (
   <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md px-4 py-4 flex items-center justify-between">
     <div className="flex items-center">
        {typeof title === 'string' ? (
@@ -222,10 +222,14 @@ const Header = ({ title, showSearch = true, onNotifClick }: { title: string | Re
        )}
     </div>
     <div className="flex items-center space-x-4">
-      {showSearch && <Search size={22} className="text-[#0F203F]" />}
+      {showSearch && <button onClick={onSearchClick} className="cursor-pointer"><Search size={22} className="text-[#0F203F]" /></button>}
       <button onClick={onNotifClick} className="relative cursor-pointer">
         <Bell size={22} className="text-[#0F203F]" />
         <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white">3</span>
+      </button>
+      <button onClick={onMessageClick} className="relative cursor-pointer">
+        <MessageCircle size={22} className="text-[#0F203F]" />
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#87D3E4] text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white">2</span>
       </button>
     </div>
   </header>
@@ -260,6 +264,58 @@ const NotificationScreen = ({ onBack }: { onBack: () => void }) => {
              {n.img && <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0"><ImageWithFallback src={n.img} /></div>}
              {n.type === 'follow' && <button className="px-4 py-1.5 bg-[#0F203F] text-white text-[10px] font-bold rounded-full">Takip Et</button>}
              {n.type === 'bot' && <button className="px-4 py-1.5 bg-[#87D3E4] text-[#0F203F] text-[10px] font-bold rounded-full">Gör</button>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MessagesScreen = ({ onBack }: { onBack: () => void }) => {
+  const conversations = [
+    { id: 1, user: 'elif_style', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop', lastMessage: 'Bu kombini çok beğendim! 🔥', time: '2dk', unread: 2 },
+    { id: 2, user: 'mert_fashion', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop', lastMessage: 'Teşekkürler, sana da yakışır!', time: '1s', unread: 0 },
+    { id: 3, user: 'ayse_trend', avatar: 'https://i.pravatar.cc/150?u=3', lastMessage: 'Yarın alışverişe gidelim mi?', time: '3s', unread: 1 },
+    { id: 4, user: 'zeynep_minimal', avatar: 'https://i.pravatar.cc/150?u=4', lastMessage: 'O ceketi nereden aldın?', time: '1h', unread: 0 },
+  ];
+
+  return (
+    <div className="bg-white min-h-full">
+      <div className="p-4 flex items-center gap-4 border-b border-gray-100">
+         <button onClick={onBack}><ChevronLeft size={24} /></button>
+         <h2 className="font-bold text-lg">Mesajlar</h2>
+         <div className="flex-1" />
+         <button className="p-2 bg-[#F5F7FA] rounded-full">
+           <Plus size={18} className="text-[#0F203F]" />
+         </button>
+      </div>
+      
+      {/* Search */}
+      <div className="p-4 pt-2">
+        <div className="bg-[#F5F7FA] rounded-full px-4 py-2.5 flex items-center gap-2">
+          <Search size={16} className="text-gray-400" />
+          <input placeholder="Mesajlarda ara..." className="bg-transparent border-none outline-none text-sm w-full" />
+        </div>
+      </div>
+
+      <div className="divide-y divide-gray-50">
+        {conversations.map(c => (
+          <div key={c.id} className="p-4 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors">
+             <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+                <ImageWithFallback src={c.avatar} className="w-full h-full object-cover" />
+             </div>
+             <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="font-bold text-sm text-[#0F203F]">{c.user}</span>
+                  <span className="text-[10px] text-gray-400">{c.time}</span>
+                </div>
+                <p className="text-xs text-gray-500 truncate">{c.lastMessage}</p>
+             </div>
+             {c.unread > 0 && (
+               <div className="w-5 h-5 bg-[#87D3E4] rounded-full flex items-center justify-center shrink-0">
+                 <span className="text-[10px] font-bold text-[#0F203F]">{c.unread}</span>
+               </div>
+             )}
           </div>
         ))}
       </div>
@@ -418,39 +474,182 @@ const StyleBot = () => {
   );
 };
 
-const Explore = () => (
-  <div className="p-4">
-    <div className="flex items-center gap-2 mb-4">
-      <div className="flex-1 bg-[#F5F7FA] rounded-full px-4 py-2.5 flex items-center gap-2">
-        <Search size={18} className="text-gray-400" />
-        <input placeholder="#casual, @kullanici, kırmızı..." className="bg-transparent border-none outline-none text-sm w-full" />
-      </div>
-      <button className="p-2.5 bg-[#F5F7FA] rounded-full"><Filter size={18} className="text-[#0F203F]" /></button>
-    </div>
+const Explore = () => {
+  const [activeFilter, setActiveFilter] = useState<'posts' | 'users' | 'styles'>('posts');
+  const [searchQuery, setSearchQuery] = useState('');
 
-    <div className="columns-2 gap-3 space-y-3">
-      {[1,2,3,4,5,6,7,8].map(i => (
-        <div key={i} className="break-inside-avoid relative rounded-xl overflow-hidden group cursor-pointer">
-          <ImageWithFallback 
-            src={`https://images.unsplash.com/photo-1${i}64287319604-f11ab8676901?w=400&q=80`} 
-            className="w-full h-auto object-cover" 
+  const MOCK_USERS = [
+    { id: 1, name: 'elif_style', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop', followers: '3.4K', isFollowing: false },
+    { id: 2, name: 'mert_fashion', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop', followers: '2.1K', isFollowing: true },
+    { id: 3, name: 'ayse_trend', avatar: 'https://i.pravatar.cc/150?u=3', followers: '5.8K', isFollowing: false },
+    { id: 4, name: 'zeynep_minimal', avatar: 'https://i.pravatar.cc/150?u=4', followers: '1.2K', isFollowing: false },
+  ];
+
+  const MOCK_STYLES = [
+    { id: 1, title: 'Sonbahar Casual', tags: ['#casual', '#autumn'], image: 'https://images.unsplash.com/photo-1700557478789-5e3fdb3e29ff?w=400&q=80', match: '92%' },
+    { id: 2, title: 'Urban Minimal', tags: ['#urban', '#minimal'], image: 'https://images.unsplash.com/photo-1596857578215-71a7b575e344?w=400&q=80', match: '88%' },
+    { id: 3, title: 'Streetwear Vibes', tags: ['#street', '#trendy'], image: 'https://images.unsplash.com/photo-1764287319604-f11ab8676901?w=400&q=80', match: '85%' },
+  ];
+
+  const HASHTAGS = ['#casual', '#streetwear', '#minimal', '#autumn', '#urban', '#boho', '#vintage', '#chic'];
+
+  return (
+    <div className="p-4">
+      {/* Search Bar */}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex-1 bg-[#F5F7FA] rounded-full px-4 py-2.5 flex items-center gap-2">
+          <Search size={18} className="text-gray-400" />
+          <input 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder={activeFilter === 'users' ? '@kullanici ara...' : activeFilter === 'styles' ? 'Stil önerisi ara...' : '#hashtag ile ara...'}
+            className="bg-transparent border-none outline-none text-sm w-full" 
           />
-          <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
-             <div className="flex items-center justify-between text-white">
-                <div className="flex items-center gap-1.5">
-                   <Heart size={12} fill="white" />
-                   <span className="text-[10px]">1.4K</span>
-                </div>
-                <div className="w-5 h-5 rounded-full overflow-hidden border border-white">
-                   <ImageWithFallback src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop" />
-                </div>
-             </div>
-          </div>
         </div>
-      ))}
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2 mb-4 border-b border-gray-100 pb-3">
+        <button 
+          onClick={() => setActiveFilter('posts')}
+          className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${
+            activeFilter === 'posts' 
+              ? 'bg-[#0F203F] text-white' 
+              : 'bg-[#F5F7FA] text-[#0F203F]'
+          }`}
+        >
+          Postlar
+        </button>
+        <button 
+          onClick={() => setActiveFilter('users')}
+          className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${
+            activeFilter === 'users' 
+              ? 'bg-[#0F203F] text-white' 
+              : 'bg-[#F5F7FA] text-[#0F203F]'
+          }`}
+        >
+          Kullanıcılar
+        </button>
+        <button 
+          onClick={() => setActiveFilter('styles')}
+          className={`flex-1 py-2 rounded-full text-xs font-bold transition-all ${
+            activeFilter === 'styles' 
+              ? 'bg-[#0F203F] text-white' 
+              : 'bg-[#F5F7FA] text-[#0F203F]'
+          }`}
+        >
+          Stil Önerisi
+        </button>
+      </div>
+
+      {/* Posts Tab */}
+      {activeFilter === 'posts' && (
+        <>
+          {/* Hashtag Filter */}
+          <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+            {HASHTAGS.map(tag => (
+              <button 
+                key={tag} 
+                onClick={() => setSearchQuery(tag)}
+                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  searchQuery === tag 
+                    ? 'bg-[#87D3E4] text-[#0F203F]' 
+                    : 'bg-[#F5F7FA] text-[#345C81] border border-gray-100'
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
+          <div className="columns-2 gap-3 space-y-3">
+            {[1,2,3,4,5,6,7,8].map(i => (
+              <div key={i} className="break-inside-avoid relative rounded-xl overflow-hidden group cursor-pointer">
+                <ImageWithFallback 
+                  src={`https://images.unsplash.com/photo-1${i}64287319604-f11ab8676901?w=400&q=80`} 
+                  className="w-full h-auto object-cover" 
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                   <div className="flex items-center justify-between text-white">
+                      <div className="flex items-center gap-1.5">
+                         <Heart size={12} fill="white" />
+                         <span className="text-[10px]">1.4K</span>
+                      </div>
+                      <div className="w-5 h-5 rounded-full overflow-hidden border border-white">
+                         <ImageWithFallback src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=50&h=50&fit=crop" />
+                      </div>
+                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Users Tab */}
+      {activeFilter === 'users' && (
+        <div className="space-y-3">
+          {MOCK_USERS.map(user => (
+            <div key={user.id} className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
+              <div className="w-12 h-12 rounded-full overflow-hidden">
+                <ImageWithFallback src={user.avatar} className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-sm text-[#0F203F]">{user.name}</div>
+                <div className="text-xs text-gray-400">{user.followers} takipçi</div>
+              </div>
+              <div className="flex gap-2">
+                <button className="p-2 bg-[#F5F7FA] rounded-full">
+                  <MessageCircle size={16} className="text-[#345C81]" />
+                </button>
+                <button className={`px-4 py-1.5 rounded-full text-xs font-bold ${
+                  user.isFollowing 
+                    ? 'bg-[#F5F7FA] text-[#0F203F] border border-gray-200' 
+                    : 'bg-[#0F203F] text-white'
+                }`}>
+                  {user.isFollowing ? 'Takip Ediliyor' : 'Takip Et'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Styles Tab */}
+      {activeFilter === 'styles' && (
+        <div className="space-y-4">
+          {MOCK_STYLES.map(style => (
+            <div key={style.id} className="bg-white rounded-xl overflow-hidden shadow-sm">
+              <div className="relative aspect-video">
+                <ImageWithFallback src={style.image} className="w-full h-full object-cover" />
+                <div className="absolute top-3 right-3 px-3 py-1 bg-[#87D3E4] rounded-full">
+                  <span className="text-xs font-bold text-[#0F203F]">{style.match} Eşleşme</span>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="font-bold text-[#0F203F] mb-2">{style.title}</div>
+                <div className="flex gap-2 mb-3">
+                  {style.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1 bg-[#F5F7FA] rounded-full text-[10px] font-medium text-[#345C81]">{tag}</span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button className="flex-1 py-2 bg-[#0F203F] text-white rounded-full text-xs font-bold">Kombini Gör</button>
+                  <button className="py-2 px-4 bg-[#F5F7FA] rounded-full">
+                    <Bookmark size={16} className="text-[#345C81]" />
+                  </button>
+                  <button className="py-2 px-4 bg-[#F5F7FA] rounded-full">
+                    <Share2 size={16} className="text-[#345C81]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 const Profile = () => {
   return (
@@ -543,6 +742,7 @@ export default function FeshineApp() {
 
   const renderTabContent = () => {
     if (activeTab === "notifications") return <NotificationScreen onBack={() => setActiveTab("home")} />;
+    if (activeTab === "messages") return <MessagesScreen onBack={() => setActiveTab("home")} />;
     
     switch (activeTab) {
       case "home":
@@ -624,9 +824,12 @@ export default function FeshineApp() {
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          {activeTab !== "stylebot" && activeTab !== "notifications" && (
+          {activeTab !== "stylebot" && activeTab !== "notifications" && activeTab !== "messages" && (
             <Header 
               onNotifClick={() => setActiveTab("notifications")}
+              onSearchClick={() => setActiveTab("explore")}
+              onMessageClick={() => setActiveTab("messages")}
+              showSearch={activeTab !== "explore"}
               title={
                 activeTab === "home" ? (
                   <div className="flex items-center gap-2">
@@ -737,12 +940,13 @@ export default function FeshineApp() {
             <span className="text-[10px] font-bold">Keşfet</span>
           </button>
           
+          {/* Ortada Plus (Ekleme) Butonu */}
           <div className="relative -top-8">
              <button 
-              onClick={() => setActiveTab("stylebot")} 
+              onClick={() => setIsUploading(true)} 
               className={`w-14 h-14 rounded-full flex items-center justify-center text-white ${STYLES.gradient} ${STYLES.shadow} ring-4 ring-white transition-transform active:scale-90`}
              >
-               <Bot size={28} />
+               <Plus size={28} />
              </button>
           </div>
 
@@ -755,12 +959,15 @@ export default function FeshineApp() {
             <span className="text-[10px] font-bold">Profil</span>
           </button>
 
-          <button 
-            onClick={() => setIsUploading(true)}
-            className="absolute -top-20 right-6 w-12 h-12 rounded-full bg-[#0F203F] text-white flex items-center justify-center shadow-lg"
-          >
-            <Plus size={24} />
-          </button>
+          {/* Sağ üstte AI Bot Butonu - StyleBot sayfasında gizle */}
+          {activeTab !== "stylebot" && (
+            <button 
+              onClick={() => setActiveTab("stylebot")}
+              className="absolute -top-20 right-6 w-12 h-12 rounded-full bg-[#87D3E4] text-white flex items-center justify-center shadow-lg"
+            >
+              <Bot size={24} />
+            </button>
+          )}
         </nav>
       </div>
     </div>
